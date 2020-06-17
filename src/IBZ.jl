@@ -263,7 +263,7 @@ function make_bz(lat,vertsOrHrep = true)
     # Minkowski reduce the lattice.
     vector_utils = pyimport("phenum.vector_utils")
     eps=10^-9;
-    lat = vector_utils._minkowski_reduce_basis(lat,eps)
+    lat = vector_utils._minkowski_reduce_basis(lat',eps)'
     #@show vertsOrHrep
     #enumerate all lattice points 2 on each side
     lattice_points = collect(Iterators.product(-2:2,-2:2,-2:2))
