@@ -17,7 +17,7 @@ function projectToPlane(plane,point)
     plane = normalize(plane)
     t = (-plane[1]*point[1] - plane[2]*point[2] -plane[3]*point[3])/
     (plane[1]^2+plane[2]^2+plane[3]^2)
-    return [point[1] + t*plane[1] 
+    return [point[1] + t*plane[1]
             point[2] + t*plane[2]
             point[3] + t*plane[3]]
 end
@@ -106,7 +106,7 @@ end
 reflectionReduce(rPlane,ch)
 
 removes all points from the convex hull ch that are on the opposite side of
-the plane defined by the vector rPlane. Creates additional verticies at 
+the plane defined by the vector rPlane. Creates additional verticies at
 plane intersections of the simplicies of the convex hull
 
 """
@@ -256,14 +256,16 @@ end #function
 @doc """
 returns the brillouin zone for the given lattice,
 
-by default returns the verticies the of the bz, 
+by default returns the verticies the of the bz,
 can also return the Half space representation
-
-!!! does not currently work for skewed cells, need to implement minkowski reduction !!!!!
 """
 function make_bz(lat,vertsOrHrep = true)
-    #@show vertsOrHrep   
-    #enumarate all lattice points 2 on each side
+    # Minkowski reduce the lattice.
+    vector_utils = pyimport("phenum.vector_utils")
+    eps=10^-9;
+    lat = vector_utils._minkowski_reduce_basis(lat,eps)
+    #@show vertsOrHrep
+    #enumerate all lattice points 2 on each side
     lattice_points = collect(Iterators.product(-2:2,-2:2,-2:2))
     #make a array of vectors
     lattice_points = [collect(i) for i in vec(lattice_points)]
@@ -291,7 +293,7 @@ function make_bz(lat,vertsOrHrep = true)
 end
 
 function make_bz_2d(lat,vertsOrHrep = true)
-    #@show vertsOrHrep   
+    #@show vertsOrHrep
     #enumarate all lattice points 2 on each side
     lattice_points = collect(Iterators.product(-2:2,-2:2))
     #make a array of vectors
@@ -324,12 +326,12 @@ end
 @doc """
 reduce_bz_old(lat, at, atom_pos)
 
-returns the reduced Brillouin zone, uses a more a cutting plane to reduce the bz instead of 
+returns the reduced Brillouin zone, uses a more a cutting plane to reduce the bz instead of
 halfspaces, used only for refrence
 
 
 
-!!! this method fails some test cases, I think it is some sort of finite preciesion error in 
+!!! this method fails some test cases, I think it is some sort of finite preciesion error in
 reflection reduce !!!!
 
 # Arguments
@@ -387,14 +389,14 @@ end #function
 function write_obj(verts,faces,path)
     io = open(path,"w")
     for v in eachrow(verts)
-        write(io, "v ") 
+        write(io, "v ")
         for p in v
             write(io,string(p, " " ))
         end
         write(io,"\n")
     end
     for f in faces
-        write(io, "f ") 
+        write(io, "f ")
         for i in f
             write(io,string(i, " " ))
         end
@@ -440,7 +442,7 @@ function detriangulate(points,polygon)
             end
         end
 
-    end 
+    end
     return possible_orderings[min_order]
 end
 function get_polygons(faces,points)
@@ -454,14 +456,14 @@ function get_polygons(faces,points)
         if indexin(findex,processed_faces)[1] === nothing
             push!(processed_faces,findex)
             polygon = []
-            p0 = points[face[1],:] 
+            p0 = points[face[1],:]
             v1 = points[face[1],:] - points[face[2],:]
             v2 = points[face[1],:] - points[face[3],:]
             normal = normalize(cross(v1,v2))
             #equation of a plane ax+by+cz = d
-            a = normal[1] 
-            b = normal[2] 
-            c = normal[3] 
+            a = normal[1]
+            b = normal[2]
+            c = normal[3]
             d = a *p0[1] + b*p0[2] +c*p0[3]
             #find all faces whose points are all in this plane
             for (findex2,face2) in enumerate(faces)
@@ -497,7 +499,7 @@ function order_params(a,b,c)
     end
     return a,b,c
 end
-    
+
 function rand_sc(a=rand(Uniform(.1,5)))
     return [a 0 0;
             0 a 0;
@@ -661,7 +663,7 @@ bcc = rand_bcc(1)
 hex =  rand_hex()
 rhoma = rand_rhom_a()
 rhomb = rand_rhom_b()
-st = rand_st() 
+st = rand_st()
 bcta =  rand_bct_a()
 bctb =  rand_bct_b()
 so =   rand_so()
@@ -677,5 +679,3 @@ tric =  sym.make_lattice_vectors("triclinic",[1, 2, 3],[pi/13, pi/7, pi/5])
 lattices =      [sc, fcc, bcc, hex, rhoma,rhomb, st, bcta, bctb, so, baseco, bco, fcoa, fcob, fcoc, sm, basecm, tric]
 expectedOrder = [48, 48,  48,  24,  12,   12,    16, 16,   16,   8,  8,      8,   8,    8,    8,    4,  4,      2]
     end #module
-
-
