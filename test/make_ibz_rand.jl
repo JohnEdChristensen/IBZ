@@ -5,7 +5,7 @@ labels =lattice_labels
 
 @testset "bz reduce rand" begin
     lats = Array[]
-    test_size =2 
+    test_size =20 
     for i in 1:test_size push!(lats,rand_sc()) end
     for i in 1:test_size push!(lats,rand_fcc()) end
     for i in 1:test_size push!(lats,rand_bcc()) end
