@@ -409,6 +409,7 @@ function simplify_faces(chull)
     points = chull.points
     faces = chull.simplices
     polygons = get_polygons(faces,points)
+    @show polygons
     for i in 1:size(polygons)[1]
         polygons[i] = detriangulate(points,polygons[i])
     end
@@ -429,7 +430,8 @@ function detriangulate(points,polygon)
             #distance
             total += euclidean(points[index,:],points[next_point,:])
         end
-        if total < min_distance
+        #sometimes total is 0? TEMP FIX
+        if total < min_distance  #&& total !=0
             @show min_distance
             @show total
             min_distance = total
@@ -437,12 +439,15 @@ function detriangulate(points,polygon)
             if total == 0
                 @show points
                 @show order
+                @show possible_orderings
+                @show polygon
             end
         end
 
     end 
     return possible_orderings[min_order]
 end
+#TODO sometimes returns an empty array
 function get_polygons(faces,points)
     #each element  contains the indices of the vertices that make up a polygon
     polygons = []
@@ -479,7 +484,10 @@ function get_polygons(faces,points)
                     push!(processed_faces,findex2)
                 end
             end
-            push!(polygons,polygon)
+            if size(polygon)[1] != 0 
+                @show polygon
+                push!(polygons,polygon)
+            end
         end
     end
     return polygons
@@ -652,30 +660,33 @@ function rand_basecm_a(a = rand(Uniform(.1,5)),b = rand(Uniform(.1,5)),c = rand(
 end
 
 
-lattice_labels = ["sc" "fcc" "bcc" "hex" "rhoma" "rhomb" "st" "bcta" "bctb" "so" "baseco" "bco" "fcoa" "fcob" "fcoc" "sm" "basecm" "tric"]
 #labels = ["sc"]
 sym = pyimport("bzip.symmetry")
 sc = rand_sc(1)
 fcc = rand_fcc(1)
 bcc = rand_bcc(1)
-hex =  rand_hex()
-rhoma = rand_rhom_a()
-rhomb = rand_rhom_b()
-st = rand_st() 
-bcta =  rand_bct_a()
-bctb =  rand_bct_b()
-so =   rand_so()
-baseco = rand_baseco()
-bco =  rand_bco()
-fcoa = rand_fco_a()
-fcob = rand_fco_b()
-fcoc = rand_fco_c()
-sm =  rand_sm()
-basecm =  rand_basecm_a()
+hex =  rand_hex(2,3)
+rhoma = rand_rhom_a(.5,pi/7)
+rhomb = rand_rhom_b(.5,4*pi/7)
+st = rand_st(1,2) 
+bcta =  rand_bct_a(2,3)
+bctb =  rand_bct_b(2,3)
+so =   rand_so(1,2,3)
+baseco = rand_baseco(1,2,3)
+bco =  rand_bco(1,2,3)
+fcoa = rand_fco_a(1,2,3)
+fcob = rand_fco_b(1,.5,.25)
+fcoc = rand_fco_c(1,2,3)
+sm =  rand_sm(1,2,3,pi/4)
+#not suer if this is correct
+basecm =  rand_basecm_a(1,2,3,pi/4)
 tric =  sym.make_lattice_vectors("triclinic",[1, 2, 3],[pi/13, pi/7, pi/5])
 
 lattices =      [sc, fcc, bcc, hex, rhoma,rhomb, st, bcta, bctb, so, baseco, bco, fcoa, fcob, fcoc, sm, basecm, tric]
 expectedOrder = [48, 48,  48,  24,  12,   12,    16, 16,   16,   8,  8,      8,   8,    8,    8,    4,  4,      2]
+#lattices =      [sc, fcc, bcc, hex, rhoma,rhomb, st, bcta, bctb, so, baseco, bco, fcoa, sm, tric]
+#expectedOrder = [48, 48,  48,  24,  12,   12,    16, 16,   16,   8,  8,      8,   8,  4,      2]
+lattice_labels = ["sc" "fcc" "bcc" "hex" "rhoma" "rhomb" "st" "bcta" "bctb" "so" "baseco" "bco" "fcoa" "fcob" "fcoc" "sm" "tric"]
     end #module
 
 
