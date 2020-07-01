@@ -1,6 +1,6 @@
 module IBZ
 
-using LinearAlgebra,PyCall,QHull,Polyhedra,CDDLib, Combinatorics,Distances, Distributions
+using LinearAlgebra,PyCall,QHull,Polyhedra,CDDLib, Combinatorics,Distances,Distributions
 
 export reduce_bz,reducePoints
 export make_bz, make_bz_2d
@@ -298,7 +298,7 @@ function make_bz(lat,convention,vertsOrHrep = true)
     return bz
 end
 
-function make_bz_2d(lat,vertsOrHrep = true)
+function make_bz_2d(lat,convention,vertsOrHrep = true)
     rlat = make_recip_latvecs(lat, convention)
     #@show vertsOrHrep
     #enumarate all lattice points 2 on each side
