@@ -26,7 +26,7 @@ function BZMaps(BZ,spaceGroup)
     for m in ops
         for i in 1:size(BZ.points)[1]
             #newVert =  transpose(transpose(BZ.points[i,:]) * m)
-            newVert =  m*BZ.points[i,:] 
+            newVert =  m*BZ.points[i,:]
             #check if the newVert maps to another point
             point_maps = false
             for j in 1:size(BZ.points)[1]
@@ -43,7 +43,7 @@ function BZMaps(BZ,spaceGroup)
 end
 function comparePolygon(bz1,bz2)
     num_points_in_2 = 0
-    for i in bz1.vertices 
+    for i in bz1.vertices
         point = bz1.points[i,:]
         point_in_2 = false
         for j in bz2.vertices
