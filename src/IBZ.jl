@@ -7,6 +7,7 @@ export make_bz, make_bz_2d
 export reduce_bz_old
 export rand_sc,rand_fcc,rand_bcc,rand_hex,rand_rhom_a,rand_rhom_b,rand_st, rand_bct_a,rand_bct_b,rand_so
 export lattices,lattice_labels,expectedOrder
+export make_recip_latvecs
 
 @doc """
 function projectToPlane(plane,point)
@@ -137,7 +138,7 @@ function reflectionReduce(rPlane,ch)
 end
 
 @doc """
-reduce_bz(lat, at, atom_pos)
+reduce_bz(lat, at, atom_pos, convention)
 
 returns the reduced Brillouin zone
 
@@ -145,11 +146,14 @@ returns the reduced Brillouin zone
 - `lat:Array{Float64,3,3}`: The lattice vectors
 - `at:Array{Int64,n}`: The atom types
 - `atom_pos:Array{Int64,n,3}`: position of the atoms
-
+- `convention::String="ordinary"`: the convention used to go between real and
+    reciprocal space. The two conventions are ordinary (temporal) frequency and
+    angular frequency. The transformation from real to reciprocal space is
+    unitary if the convention is ordinary.
 """
-function reduce_bz(lat, at, atom_pos)
+function reduce_bz(lat, at, atom_pos, convention)
 
-    bz = make_bz(lat,false)
+    bz = make_bz(lat,convention,false)
 
     verts =  collect(points(polyhedron(bz,CDDLib.Library())))
 
@@ -200,9 +204,9 @@ function reduce_bz(lat, at, atom_pos)
 
 end #function
 
-function reduce_bz_2d(lat, spaceGroup)
+function reduce_bz_2d(lat, spaceGroup, convention)
 
-    bz = make_bz_2d(lat,false)
+    bz = make_bz_2d(lat,convention,false)
 
     verts =  collect(points(polyhedron(bz,CDDLib.Library())))
 
@@ -259,18 +263,20 @@ returns the brillouin zone for the given lattice,
 by default returns the verticies the of the bz,
 can also return the Half space representation
 """
-function make_bz(lat,vertsOrHrep = true)
+function make_bz(lat,convention,vertsOrHrep = true)
+
+    rlat = make_recip_latvecs(lat, convention)
     # Minkowski reduce the lattice.
     vector_utils = pyimport("phenum.vector_utils")
     eps=10^-9;
-    lat = vector_utils._minkowski_reduce_basis(lat',eps)'
+    rlat = vector_utils._minkowski_reduce_basis(rlat',eps)'
     #@show vertsOrHrep
     #enumerate all lattice points 2 on each side
     lattice_points = collect(Iterators.product(-2:2,-2:2,-2:2))
     #make a array of vectors
     lattice_points = [collect(i) for i in vec(lattice_points)]
     #calculate the Cartesian position of each lattice point
-    cart_point = [lat*i for i in lattice_points]
+    cart_point = [rlat*i for i in lattice_points]
     #sort based on distance from origin
     distance = [norm(i) for i in cart_point]
     cart_point = cart_point[sortperm(distance)]
@@ -293,13 +299,14 @@ function make_bz(lat,vertsOrHrep = true)
 end
 
 function make_bz_2d(lat,vertsOrHrep = true)
+    rlat = make_recip_latvecs(lat, convention)
     #@show vertsOrHrep
     #enumarate all lattice points 2 on each side
     lattice_points = collect(Iterators.product(-2:2,-2:2))
     #make a array of vectors
     lattice_points = [collect(i) for i in vec(lattice_points)]
     #calculate the Cartesian position of each lattice point
-    cart_point = [lat*i for i in lattice_points]
+    cart_point = [rlat*i for i in lattice_points]
     #sort based on distance from origin
     distance = [norm(i) for i in cart_point]
     cart_point = cart_point[sortperm(distance)]
@@ -327,7 +334,7 @@ end
 reduce_bz_old(lat, at, atom_pos)
 
 returns the reduced Brillouin zone, uses a more a cutting plane to reduce the bz instead of
-halfspaces, used only for refrence
+halfspaces, used only for reference
 
 
 
@@ -340,9 +347,9 @@ reflection reduce !!!!
 - `atom_pos:Array{Int64,n,3}`: position of the atoms
 
 """
-function reduce_bz_old(lat, at, atom_pos)
+function reduce_bz_old(lat, at, atom_pos,convention)
 
-    bz = make_bz(lat)
+    bz = make_bz(lat,convention)
     bz = chull(bz)
     obz = bz
 
@@ -411,7 +418,6 @@ function simplify_faces(chull)
     points = chull.points
     faces = chull.simplices
     polygons = get_polygons(faces,points)
-    @show polygons
     for i in 1:size(polygons)[1]
         polygons[i] = detriangulate(points,polygons[i])
     end
@@ -432,24 +438,20 @@ function detriangulate(points,polygon)
             #distance
             total += euclidean(points[index,:],points[next_point,:])
         end
-        #sometimes total is 0? TEMP FIX
-        if total < min_distance  #&& total !=0
-            @show min_distance
-            @show total
+        if total < min_distance
+            #@show min_distance
+            #@show total
             min_distance = total
             min_order = order_num
             if total == 0
-                @show points
-                @show order
-                @show possible_orderings
-                @show polygon
+                #@show points
+                #@show order
             end
         end
 
     end
     return possible_orderings[min_order]
 end
-#TODO sometimes returns an empty array
 function get_polygons(faces,points)
     #each element  contains the indices of the vertices that make up a polygon
     polygons = []
@@ -486,10 +488,7 @@ function get_polygons(faces,points)
                     push!(processed_faces,findex2)
                 end
             end
-            if size(polygon)[1] != 0 
-                @show polygon
-                push!(polygons,polygon)
-            end
+            push!(polygons,polygon)
         end
     end
     return polygons
@@ -600,7 +599,11 @@ end
 
 #1/a^2 > 1/b^2 + 1/c^2
 #TODO figure out why we need certain ordering? (a < b < c)
-function rand_fco_a(a = rand(Uniform(.1,5)),b = rand(Uniform(.1,5)),c = rand(Uniform(.1,5)))
+function rand_fco_a()
+    a = rand(Uniform(.1,5))
+    b = rand(Uniform(a,5))
+    c = rand(Uniform(b,5))
+
     if a > b
         a,b = b,a
     end
@@ -662,31 +665,73 @@ function rand_basecm_a(a = rand(Uniform(.1,5)),b = rand(Uniform(.1,5)),c = rand(
 end
 
 
+lattice_labels = ["sc" "fcc" "bcc" "hex" "rhoma" "rhomb" "st" "bcta" "bctb" "so" "baseco" "bco" "fcoa" "fcob" "fcoc" "sm" "basecm" "tric"]
 #labels = ["sc"]
 sym = pyimport("bzip.symmetry")
 sc = rand_sc(1)
 fcc = rand_fcc(1)
 bcc = rand_bcc(1)
-hex =  rand_hex(2,3)
-rhoma = rand_rhom_a(.5,pi/7)
-rhomb = rand_rhom_b(.5,4*pi/7)
-st = rand_st(1,2) 
-bcta =  rand_bct_a(2,3)
-bctb =  rand_bct_b(2,3)
-so =   rand_so(1,2,3)
-baseco = rand_baseco(1,2,3)
-bco =  rand_bco(1,2,3)
-fcoa = rand_fco_a(1,2,3)
-fcob = rand_fco_b(1,.5,.25)
-fcoc = rand_fco_c(1,2,3)
-sm =  rand_sm(1,2,3,pi/4)
-#not suer if this is correct
-basecm =  rand_basecm_a(1,2,3,pi/4)
+hex =  rand_hex()
+rhoma = rand_rhom_a()
+rhomb = rand_rhom_b()
+st = rand_st()
+bcta =  rand_bct_a()
+bctb =  rand_bct_b()
+so =   rand_so()
+baseco = rand_baseco()
+bco =  rand_bco()
+fcoa = rand_fco_a()
+fcob = rand_fco_b()
+fcoc = rand_fco_c()
+sm =  rand_sm()
+basecm =  rand_basecm_a()
 tric =  sym.make_lattice_vectors("triclinic",[1, 2, 3],[pi/13, pi/7, pi/5])
 
 lattices =      [sc, fcc, bcc, hex, rhoma,rhomb, st, bcta, bctb, so, baseco, bco, fcoa, fcob, fcoc, sm, basecm, tric]
 expectedOrder = [48, 48,  48,  24,  12,   12,    16, 16,   16,   8,  8,      8,   8,    8,    8,    4,  4,      2]
-#lattices =      [sc, fcc, bcc, hex, rhoma,rhomb, st, bcta, bctb, so, baseco, bco, fcoa, sm, tric]
-#expectedOrder = [48, 48,  48,  24,  12,   12,    16, 16,   16,   8,  8,      8,   8,  4,      2]
-lattice_labels = ["sc" "fcc" "bcc" "hex" "rhoma" "rhomb" "st" "bcta" "bctb" "so" "baseco" "bco" "fcoa" "fcob" "fcoc" "sm" "tric"]
-    end #module
+
+
+@doc """
+    make_recip_latvecs(real_latvecs, convention)
+
+Calculate the reciprocal lattice vectors.
+
+# Arguments
+- `real_latvecs::AbstractArray{<:Real,2}`: the real space lattice vectors or
+    primitive translation vectors as columns of a 2x2 or 3x3 array.
+- `convention::String="ordinary"`: the convention used to go between real and
+    reciprocal space. The two conventions are ordinary (temporal) frequency and
+    angular frequency. The transformation from real to reciprocal space is
+    unitary if the convention is ordinary.
+
+# Returns
+- `recip_latvecs::Array{<:Real,2}` the reciprocal lattice vectors (reciprocal
+    primitive translation vectors) as columns of a 2x2 or 3x3 array.
+
+# Examples
+```jldoctest
+using IBZ
+real_latvecs=[1 0 0; 0 1 0; 0 0 1]
+convention="angular"
+make_recip_latvecs(real_latvecs,convention)
+# output
+3×3 Array{Float64,2}:
+ 6.28319  0.0      0.0
+ 0.0      6.28319  0.0
+ 0.0      0.0      6.28319
+```
+"""
+function make_recip_latvecs(real_latvecs::AbstractArray{<:Real,2},
+        convention::String="ordinary")::Array{Float64,2}
+    if convention == "ordinary"
+        recip_latvecs = Array(inv(real_latvecs)')
+    elseif convention == "angular"
+        recip_latvecs = Array(2π*inv(real_latvecs)')
+    else
+        throw(ArgumentError("The allowed conventions are \"ordinary\" and
+        \"angular\"."))
+    end
+    recip_latvecs
+end
+
+end #module
