@@ -1,9 +1,11 @@
 module IBZ
 
-include("lattices.jl")
-include("plotting.jl")
-include("symmetry.jl")
-using .lattices, .plotting, .symmetry
+include("Lattices.jl")
+include("Plotting.jl")
+include("Symmetry.jl")
+include("Utilities.jl")
+
+using .Lattices, .Plotting, .Symmetry, .Utilities
 
 # lattices
 export get_recip_latvecs, minkowski_reduce, check_reduced
