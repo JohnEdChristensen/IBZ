@@ -23,7 +23,7 @@ jobs:
 
 script:
   - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
-      Pkg.test("IBZ"; coverage=true)'
+      Pkg.activate("."); Pkg.test("IBZ"; coverage=true)'
 
 after_success:
   # Install required packages for coverage and documentation
@@ -36,7 +36,5 @@ after_success:
 
   # Build and deploy documentation
   - julia --project ./docs/make.jl
-
-
 
 coveralls: true

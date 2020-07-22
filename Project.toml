@@ -1,6 +1,6 @@
 name = "IBZ"
 uuid = "49a35663-c880-4242-bebb-1ec8c0fa8046"
-authors = ["John Christensen <johnedchristensen@gmail.com>"]
+authors = ["Jeremy Jorgensen <jerjorg@gmail.com>"]
 version = "0.1.0"
 
 [deps]
@@ -17,3 +17,4 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 QHull = "a8468747-bd6f-53ef-9e5c-744dbc5c59e7"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
