@@ -1,0 +1,42 @@
+language: julia
+os:
+  - linux
+  - osx
+  - windows
+
+julia:
+  - 1.4
+
+notifications:
+  email: false
+
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.4
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg;
+            Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
+
+script:
+  - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
+      Pkg.test("IBZ"; coverage=true)'
+
+after_success:
+  # Install required packages for coverage and documentation
+  #- julia --project -e 'import Pkg; Pkg.add("Coverage"); Pkg.add("Documenter");
+  #    Pkg.add("DocumenterTools");'
+
+  # Submit test coverage report
+  #- julia --project -e 'using Coverage;
+  #    Coveralls.submit(Coveralls.process_folder())'
+
+  # Build and deploy documentation
+  - julia --project ./docs/make.jl
+
+
+
+coveralls: true
