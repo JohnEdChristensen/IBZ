@@ -13,7 +13,6 @@ jobs:
       script:
         name: "Unit tests"
         - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
-            Pkg.activate("."); Pkg.test("IBZ"; coverage=true)'
+            Pkg.activate("."); Pkg.test("IBZ")'
       after_success:
         - julia --project ./docs/make.jl
-      coveralls: true
