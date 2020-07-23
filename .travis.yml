@@ -18,5 +18,7 @@ script:
 
 after_success:
   - julia --project ./docs/make.jl
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage;
+      Coveralls.submit(process_folder())'
 
 coveralls: true
