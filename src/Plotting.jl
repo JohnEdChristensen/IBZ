@@ -373,6 +373,7 @@ convention = "ordinary"
 """
 function plot_cells(real_latvecs,atom_types,atom_pos,coords,convention,
         rtol::Real=sqrt(eps(float(maximum(real_latvecs)))),atol::Real=0.0)
+    mplot3d=pyimport("mpl_toolkits.mplot3d")
     bzformat = "convex hull"
     bz = calc_bz(real_latvecs,convention,bzformat)
     ibzformat = "convex hull"
