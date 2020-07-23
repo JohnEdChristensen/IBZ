@@ -2,9 +2,23 @@ language: julia
 
 jobs:
   include:
+    - stage: "Tests"
+      install:
+        - pip3 install scipy
+      julia: 1.4
+      os:
+        - osx
+      notifications:
+        email: false
+      script:
+        - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
+            Pkg.activate("."); Pkg.test("IBZ"; coverage=true)'
+
+jobs:
+  include:
     - stage: "Documentation"
       julia: 1.4
-      os: linux
+      os: osx
       script:
         # Install required packages for coverage and documentation
         - julia --project -e 'import Pkg; Pkg.add("Coverage");
@@ -19,19 +33,5 @@ jobs:
 
       after_success:
         - julia --project ./docs/make.jl
-        
-      coveralls: true
 
-    - stage: "Tests"
-      install:
-        - pip3 install scipy
-      julia: 1.4
-      os:
-        - linux
-        - osx
-        - windows
-      notifications:
-        email: false
-      script:
-        - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
-            Pkg.activate("."); Pkg.test("IBZ"; coverage=true)'
+      coveralls: true

@@ -59,7 +59,7 @@ end
 Calculate the lattice constants and angles of a lattice basis.
 
 # Arguments
--`latvecs::AbstractArray{<:Real,2}`: the lattice basis as columns of an array.
+- `latvecs::AbstractArray{<:Real,2}`: the lattice basis as columns of an array.
 
 # Returns
 - A list where the first element is a list lattice constants `(a,b,c)` and second
@@ -103,13 +103,13 @@ closest lattice point from the `k`th lattice vector, and reordering the
 lattice vectors by increasing Euclidean norms.
 
 # Arguments
--`basis::AbstractArray{<:Real,2}`: the lattice basis as columns of an array.
--`k::Int`: Keeps track of which lattice vector needs to be reduced.
+- `basis::AbstractArray{<:Real,2}`: the lattice basis as columns of an array.
+- `k::Int`: Keeps track of which lattice vector needs to be reduced.
 
 # Returns
--`basis::AbstractArray{<:Real,2}`: the partially reduced lattice basis as
+- `basis::AbstractArray{<:Real,2}`: the partially reduced lattice basis as
     columns of an array.
--`k::Int`: The index of the lattice vector that needs to be reduced next.
+- `k::Int`: The index of the lattice vector that needs to be reduced next.
 
 # Examples
 ```jldoctest

@@ -212,16 +212,16 @@ end
 Calculate the point group of lattice in 2D or 3D.
 
 # Arguments
--`latvecs::AbstractArray{<:Real,2}`: the basis of the lattice as columns of an
+- `latvecs::AbstractArray{<:Real,2}`: the basis of the lattice as columns of an
     array.
--`rtol::Real=sqrt(eps(float(maximum(real_latvecs))))`: a relative tolerance for
+- `rtol::Real=sqrt(eps(float(maximum(real_latvecs))))`: a relative tolerance for
     floating point comparisons. It is used to compare lengths of vectors and the
     volumes of primitive cells.
--`atol::Real=0.0`: an absolute tolerance for floating point comparisons. It is
+- `atol::Real=0.0`: an absolute tolerance for floating point comparisons. It is
     used to compare lengths of vectors and the volumes of primitive cells.
 
 # Returns
--`pointgroup::Array{Array{Float64,2},1}`: the point group of the lattice. The
+- `pointgroup::Array{Array{Float64,2},1}`: the point group of the lattice. The
     operators operate on points in Cartesian coordinates.
 
 # Examples
@@ -285,21 +285,21 @@ end
 Map a point to the first unit (primitive) cell.
 
 # Arguments
--`pt::AbstractArray{<:Real,1}`: a point in lattice or Cartesian coordinates.
--`latvecs::AbstractArray{<:Real,2}`: the basis vectors of the lattice as columns
+- `pt::AbstractArray{<:Real,1}`: a point in lattice or Cartesian coordinates.
+- `latvecs::AbstractArray{<:Real,2}`: the basis vectors of the lattice as columns
     of an array.
--`inv_latvecs::AbstractArray{<:Real,2}`: the inverse of the matrix of that
+- `inv_latvecs::AbstractArray{<:Real,2}`: the inverse of the matrix of that
     contains the lattice vectors.
--`coords::String`: indicates whether `pt` is in \"Cartesian\" or \"lattice\"
+- `coords::String`: indicates whether `pt` is in \"Cartesian\" or \"lattice\"
     coordinates.
--`rtol::Real=sqrt(eps(float(maximum(inv_latvecs))))`: a relative tolerance for
+- `rtol::Real=sqrt(eps(float(maximum(inv_latvecs))))`: a relative tolerance for
     floating point comparisons. Finite precision errors creep up when `pt` is
     transformed to lattice coordinates because the transformation requires
     calculating a matrix inverse. The components of the point in lattice
     coordinates are checked to ensure that values close to 1 are equal to 1.
 
 # Returns
--`AbstractArray{<:Real,1}`: a translationally equivalent point to `pt` in the
+- `AbstractArray{<:Real,1}`: a translationally equivalent point to `pt` in the
     first unit cell in the same coordinates.
 
 #Examples
@@ -339,19 +339,19 @@ end
 Calculate the space group of a crystal structure.
 
 # Arguments
--`real_latvecs::AbstractArray{<:Real,2}`: the basis of the lattice as columns
+- `real_latvecs::AbstractArray{<:Real,2}`: the basis of the lattice as columns
     of an array.
--`atom_types::AbstractArray{<:Int,1}`: a list of atom types as integers.
--`atom_pos::AbstractArray{<:Real,2}`: the positions of atoms in the crystal
+- `atom_types::AbstractArray{<:Int,1}`: a list of atom types as integers.
+- `atom_pos::AbstractArray{<:Real,2}`: the positions of atoms in the crystal
     structure as columns of an array.
--`coords::String`: indicates the positions of the atoms are in \"lattice\" or
+- `coords::String`: indicates the positions of the atoms are in \"lattice\" or
     \"Cartesian\" coordinates.
--`rtol::Real=sqrt(eps(float(maximum(real_latvecs))))` a relative tolerance for
+- `rtol::Real=sqrt(eps(float(maximum(real_latvecs))))` a relative tolerance for
     floating point comparisons.
--`atol::Real=0.0`: an absolute tolerance for floating point comparisons.
+- `atol::Real=0.0`: an absolute tolerance for floating point comparisons.
 
 # Returns
--`spacegroup`: the space group of the crystal structure. The first element of
+- `spacegroup`: the space group of the crystal structure. The first element of
     `spacegroup` is a list of fractional translations, and the second element is
     a list of point operators. The translations are in Cartesian coordinates,
     and the operators operate on points in Cartesian coordinates.
@@ -504,25 +504,25 @@ end
 Calculate the irreducible Brillouin zone of a crystal structure in 2D or 3D.
 
 # Arguments
--`real_latvecs::AbstractArray{<:Real,2}`: the basis of a real-space lattice as
+- `real_latvecs::AbstractArray{<:Real,2}`: the basis of a real-space lattice as
     columns of an array.
--`atom_types:AbstractArray{<:Int,1}`: a list of atom types as integers.
--`atom_pos::AbstractArray{<:Real,2}`: the positions of atoms in the crystal
+- `atom_types:AbstractArray{<:Int,1}`: a list of atom types as integers.
+- `atom_pos::AbstractArray{<:Real,2}`: the positions of atoms in the crystal
     structure as columns of an array.
--`coords::String`: indicates the positions of the atoms are in \"lattice\" or
+- `coords::String`: indicates the positions of the atoms are in \"lattice\" or
     \"Cartesian\" coordinates.
--`ibzformat::String`: the format of the irreducible Brillouin zone. Options
+- `ibzformat::String`: the format of the irreducible Brillouin zone. Options
     include \"convex-hull\" and \"half-space\".
--`convention::String="ordinary"`: the convention used to go between real and
+- `convention::String="ordinary"`: the convention used to go between real and
     reciprocal space. The two conventions are ordinary (temporal) frequency and
     angular frequency. The transformation from real to reciprocal space is
     unitary if the convention is ordinary.
--`rtol::Real=sqrt(eps(float(maximum(real_latvecs))))` a relative tolerance for
+- `rtol::Real=sqrt(eps(float(maximum(real_latvecs))))` a relative tolerance for
     floating point comparisons.
--`atol::Real=0.0`: an absolute tolerance for floating point comparisons.
+- `atol::Real=0.0`: an absolute tolerance for floating point comparisons.
 
 # Returns
--`ibz`: the irreducible Brillouin zone as a convex hull or intersection of
+- `ibz`: the irreducible Brillouin zone as a convex hull or intersection of
     half-spaces.
 
 # Examples
