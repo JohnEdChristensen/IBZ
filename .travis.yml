@@ -1,18 +1,20 @@
 language: julia
 
-jobs:
-  include:
-    - stage: "Tests"
-      install:
-        - pip3 install scipy
-      julia: 1.4
-      os:
-        - osx
-      notifications:
-        email: false
-      script:
-        name: "Unit tests"
-        - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
-            Pkg.activate("."); Pkg.test("IBZ")'
-      after_success:
-        - julia --project ./docs/make.jl
+install:
+  - pip3 install scipy
+
+os:
+  - osx
+
+julia:
+  - 1.4
+
+notifications:
+  email: false
+
+script:
+  - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
+      Pkg.activate("."); Pkg.test("IBZ")'
+
+after_success:
+  - julia --project ./docs/make.jl
