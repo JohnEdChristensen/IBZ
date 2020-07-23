@@ -14,15 +14,6 @@ jobs:
         name: "Unit tests"
         - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
             Pkg.activate("."); Pkg.test("IBZ"; coverage=true)'
-
-        # Install required packages for coverage and documentation
-        - julia --project=docs/ -e 'import Pkg; Pkg.add("Coverage");
-            Pkg.add("Documenter"); Pkg.add("DocumenterTools");
-            Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-        - julia --project=docs/ -e 'import Pkg; Pkg.add("Documenter");
-            docs/make.jl'
-
       after_success:
         - julia --project ./docs/make.jl
-
       coveralls: true
