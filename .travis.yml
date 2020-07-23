@@ -14,7 +14,9 @@ notifications:
 
 script:
   - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build();
-      Pkg.activate("."); Pkg.test("IBZ")'
+      Pkg.activate("."); Pkg.test("IBZ", coverage=true)'
 
 after_success:
   - julia --project ./docs/make.jl
+
+coveralls: true
